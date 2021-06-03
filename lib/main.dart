@@ -106,7 +106,7 @@ Future<void> createIconsFromConfig(Map<String, dynamic> config,
     android_launcher_icons.createAdaptiveIcons(config, flavor);
   }
   if (isNeedingNewIOSIcon(config)) {
-    ios_launcher_icons.createIcons(config, flavor);
+    await ios_launcher_icons.createIcons(config, flavor);
   }
 }
 

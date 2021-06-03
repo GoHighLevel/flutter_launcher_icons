@@ -6,11 +6,10 @@ import 'package:flutter_launcher_icons/constants.dart';
 
 /// File to handle the creation of icons for iOS platform
 class IosIconTemplate {
-  IosIconTemplate({this.size, this.name, this.alpha = false});
+  IosIconTemplate({this.size, this.name});
 
   final String name;
   final int size;
-  final bool alpha;
 }
 
 List<IosIconTemplate> iosIcons = <IosIconTemplate>[
@@ -31,21 +30,25 @@ List<IosIconTemplate> iosIcons = <IosIconTemplate>[
   IosIconTemplate(name: '-1024x1024@1x', size: 1024),
 ];
 
-void createIcons(Map<String, dynamic> config, String flavor) {
+Future<void> createIcons(Map<String, dynamic> config, String flavor) async {
   final String filePath = config['image_path_ios'] ?? config['image_path'];
   // decodeImageFile shows error message if null
   // so can return here if image is null
-  final Image image = decodeImage(File(filePath).readAsBytesSync());
-  if (image == null) {
+  final Image imageFile = decodeImage(File(filePath).readAsBytesSync());
+
+  if (imageFile == null) {
     return;
   }
-  if (config['remove_alpha_ios'] is bool && config['remove_alpha_ios']) {
-    image.channels = Channels.rgb;
-  }
-  if (image.channels == Channels.rgba) {
-    print(
-        '\nWARNING: Icons with alpha channel are not allowed in the Apple App Store.\nSet "remove_alpha_ios: true" to remove it.\n');
-  }
+
+  imageFile.channels = Channels.rgba;
+
+  final Image image = Image.rgb(imageFile.width + 12, imageFile.height + 12);
+
+  image.fill(0xffffffff);
+  image.channels = Channels.rgb;
+
+  copyInto(image, imageFile, dstX: 6, dstY: 6, blend: true);
+
   String iconName;
   final dynamic iosConfig = config['ios'];
   if (flavor != null) {
@@ -104,8 +107,6 @@ void saveNewIcons(IosIconTemplate template, Image image, String newIconName) {
 }
 
 Image createResizedImage(IosIconTemplate template, Image image) {
-  image.channels = !template.alpha ? Channels.rgb : image.channels;
-
   if (image.width >= template.size) {
     return copyResize(image,
         width: template.size,
@@ -115,7 +116,7 @@ Image createResizedImage(IosIconTemplate template, Image image) {
     return copyResize(image,
         width: template.size,
         height: template.size,
-        interpolation: Interpolation.linear);
+        interpolation: Interpolation.average);
   }
 }
 
