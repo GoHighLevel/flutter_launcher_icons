@@ -6,7 +6,7 @@ import 'package:flutter_launcher_icons/constants.dart';
 
 /// File to handle the creation of icons for iOS platform
 class IosIconTemplate {
-  IosIconTemplate({required this.size, required this.name, this.alpha = false});
+  IosIconTemplate({this.size, this.name, this.alpha = false});
 
   final String name;
   final int size;
@@ -31,11 +31,11 @@ List<IosIconTemplate> iosIcons = <IosIconTemplate>[
   IosIconTemplate(name: '-1024x1024@1x', size: 1024),
 ];
 
-void createIcons(Map<String, dynamic> config, String? flavor) {
+void createIcons(Map<String, dynamic> config, String flavor) {
   final String filePath = config['image_path_ios'] ?? config['image_path'];
   // decodeImageFile shows error message if null
   // so can return here if image is null
-  final Image? image = decodeImage(File(filePath).readAsBytesSync());
+  final Image image = decodeImage(File(filePath).readAsBytesSync());
   if (image == null) {
     return;
   }
@@ -43,7 +43,8 @@ void createIcons(Map<String, dynamic> config, String? flavor) {
     image.channels = Channels.rgb;
   }
   if (image.channels == Channels.rgba) {
-    print('\nWARNING: Icons with alpha channel are not allowed in the Apple App Store.\nSet "remove_alpha_ios: true" to remove it.\n');
+    print(
+        '\nWARNING: Icons with alpha channel are not allowed in the Apple App Store.\nSet "remove_alpha_ios: true" to remove it.\n');
   }
   String iconName;
   final dynamic iosConfig = config['ios'];
@@ -103,9 +104,7 @@ void saveNewIcons(IosIconTemplate template, Image image, String newIconName) {
 }
 
 Image createResizedImage(IosIconTemplate template, Image image) {
-  image.channels = !template.alpha
-      ? Channels.rgb
-      : image.channels;
+  image.channels = !template.alpha ? Channels.rgb : image.channels;
 
   if (image.width >= template.size) {
     return copyResize(image,
@@ -120,12 +119,12 @@ Image createResizedImage(IosIconTemplate template, Image image) {
   }
 }
 
-Future<void> changeIosLauncherIcon(String iconName, String? flavor) async {
+Future<void> changeIosLauncherIcon(String iconName, String flavor) async {
   final File iOSConfigFile = File(iosConfigFile);
   final List<String> lines = await iOSConfigFile.readAsLines();
 
   bool onConfigurationSection = false;
-  String? currentConfig;
+  String currentConfig;
 
   for (int x = 0; x < lines.length; x++) {
     final String line = lines[x];
@@ -174,10 +173,10 @@ String generateContentsFileAsString(String newIconName) {
 
 class ContentsImageObject {
   ContentsImageObject({
-    required this.size,
-    required this.idiom,
-    required this.filename,
-    required this.scale,
+    this.size,
+    this.idiom,
+    this.filename,
+    this.scale,
   });
 
   final String size;
@@ -196,7 +195,7 @@ class ContentsImageObject {
 }
 
 class ContentsInfoObject {
-  ContentsInfoObject({required this.version, required this.author});
+  ContentsInfoObject({this.version, this.author});
 
   final int version;
   final String author;

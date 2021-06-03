@@ -26,12 +26,12 @@ void printStatus(String message) {
   print('• $message');
 }
 
-String generateError(Exception e, String? error) {
+String generateError(Exception e, String error) {
   final errorOutput = error == null ? '' : ' \n$error';
   return '\n✗ ERROR: ${(e).runtimeType.toString()}$errorOutput';
 }
 
-Image? decodeImageFile(String filePath) {
+Image decodeImageFile(String filePath) {
   final image = decodeImage(File(filePath).readAsBytesSync());
   if (image == null) {
     throw NoDecoderForImageFormatException(filePath);
