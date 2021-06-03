@@ -6,10 +6,11 @@ import 'package:flutter_launcher_icons/constants.dart';
 
 /// File to handle the creation of icons for iOS platform
 class IosIconTemplate {
-  IosIconTemplate({required this.size, required this.name});
+  IosIconTemplate({required this.size, required this.name, this.alpha = false});
 
   final String name;
   final int size;
+  final bool alpha;
 }
 
 List<IosIconTemplate> iosIcons = <IosIconTemplate>[
@@ -102,6 +103,10 @@ void saveNewIcons(IosIconTemplate template, Image image, String newIconName) {
 }
 
 Image createResizedImage(IosIconTemplate template, Image image) {
+  image.channels = !template.alpha
+      ? Channels.rgb
+      : image.channels;
+
   if (image.width >= template.size) {
     return copyResize(image,
         width: template.size,
