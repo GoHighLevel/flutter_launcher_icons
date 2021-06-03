@@ -21,7 +21,7 @@ List<String> getFlavors() {
       final name = path.basename(item.path);
       final match = RegExp(flavorConfigFilePattern).firstMatch(name);
       if (match != null) {
-        flavors.add(match.group(1)!);
+        flavors.add(match.group(1));
       }
     }
   }
@@ -47,7 +47,7 @@ Future<void> createIconsFromArguments(List<String> arguments) async {
   final hasFlavors = flavors.isNotEmpty;
 
   // Load the config file
-  final Map<String, dynamic>? yamlConfig =
+  final Map<String, dynamic> yamlConfig =
       loadConfigFileFromArgResults(argResults, verbose: true);
 
   if (yamlConfig == null) {
@@ -82,7 +82,7 @@ Future<void> createIconsFromArguments(List<String> arguments) async {
 }
 
 Future<void> createIconsFromConfig(Map<String, dynamic> config,
-    [String? flavor]) async {
+    [String flavor]) async {
   if (!isImagePathInConfig(config)) {
     throw const InvalidConfigException(errorMissingImagePath);
   }
@@ -110,10 +110,10 @@ Future<void> createIconsFromConfig(Map<String, dynamic> config,
   }
 }
 
-Map<String, dynamic>? loadConfigFileFromArgResults(ArgResults argResults,
+Map<String, dynamic> loadConfigFileFromArgResults(ArgResults argResults,
     {bool verbose = false}) {
-  final String? configFile = argResults[fileOption];
-  final String? fileOptionResult = argResults[fileOption];
+  final String configFile = argResults[fileOption];
+  final String fileOptionResult = argResults[fileOption];
 
   // if icon is given, try to load icon
   if (configFile != null && configFile != defaultConfigFile) {
@@ -149,7 +149,7 @@ Map<String, dynamic>? loadConfigFileFromArgResults(ArgResults argResults,
   return null;
 }
 
-Map<String, dynamic> loadConfigFile(String path, String? fileOptionResult) {
+Map<String, dynamic> loadConfigFile(String path, String fileOptionResult) {
   final File file = File(path);
   final String yamlString = file.readAsStringSync();
   // ignore: always_specify_types
