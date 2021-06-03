@@ -2,6 +2,26 @@
 
 [![Build Status](https://travis-ci.org/fluttercommunity/flutter_launcher_icons.svg?branch=master)](https://travis-ci.org/MarkOSullivan94/flutter_launcher_icons) [![pub package](https://img.shields.io/pub/v/flutter_launcher_icons.svg)](https://pub.dartlang.org/packages/flutter_launcher_icons)
 
+
+
+Fixed : Alpha + Scaling issue + support of lower dart sdk
+
+Usage :
+```dart
+flutter_launcher_icons:
+    git:
+      url: https://github.com/iamSahdeep/flutter_launcher_icons.git
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/playstore.png"
+  adaptive_icon_foreground_scale_factor: 0.49
+  adaptive_icon_foreground: "assets/playstore.png"
+  adaptive_icon_background: "#000000"
+  remove_alpha_ios: true
+```
+
 # Flutter Launcher Icons
 
 A command-line tool which simplifies the task of updating your Flutter app's launcher icon. Fully flexible, allowing you to choose what platform you wish to update the launcher icon for and if you want, the option to keep your old launcher icon in case you want to revert back sometime in the future.
