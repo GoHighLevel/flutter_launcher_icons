@@ -42,9 +42,10 @@ Future<void> createIcons(Map<String, dynamic> config, String flavor) async {
 
   imageFile.channels = Channels.rgba;
 
-  final Image image = Image.rgb(imageFile.width + 12, imageFile.height + 12);
-
-  image.fill(0xffffffff);
+  final Image image = Image.rgb(imageFile.width + 120, imageFile.height + 120);
+  final String backColor = config['adaptive_icon_background'] ?? '#FFFFFF';
+  backColor.replaceFirst('#', '');
+  image.fill(int.parse('0xFF$backColor'));
   image.channels = Channels.rgb;
 
   copyInto(image, imageFile, dstX: 6, dstY: 6, blend: true);
