@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.9.1 (1st March 2021)
+- Flutter 3.7 support
+
 ## 0.9.0 (28th Feb 2021)
 
 - Null-safety support added (thanks to @SteveAlexander)
