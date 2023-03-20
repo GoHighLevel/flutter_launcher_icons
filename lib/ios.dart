@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:flutter_launcher_icons/constants.dart';
 import 'package:flutter_launcher_icons/utils.dart';
 import 'package:image/image.dart';
-import 'package:flutter_launcher_icons/constants.dart';
 
 /// File to handle the creation of icons for iOS platform
 class IosIconTemplate {
@@ -40,15 +41,21 @@ Future<void> createIcons(Map<String, dynamic> config, String flavor) async {
     return;
   }
 
-  imageFile.channels = Channels.rgba;
+  int _getColorFromHex(String hexColor) {
+    //Converts hex string to int
+    hexColor = hexColor.toUpperCase().replaceAll('#', '');
+    return int.parse(hexColor, radix: 16);
+  }
 
-  final Image image = Image.rgb(imageFile.width, imageFile.height);
   String backColor = config['adaptive_icon_background'] ?? '#FFFFFF';
-  backColor = backColor.substring(1,6);
-  image.fill(int.parse('0xFF$backColor'));
-  image.channels = Channels.rgb;
+  final Image image = Image(
+    width: imageFile.width,
+    height: imageFile.height,
+    numChannels: 4,
+    backgroundColor: ColorUint32(_getColorFromHex(backColor)),
+  );
 
-  copyInto(image, imageFile, dstX: 0, dstY: 0, blend: true);
+  compositeImage(image, imageFile, dstX: 0, dstY: 0, linearBlend: true);
 
   String iconName;
   final dynamic iosConfig = config['ios'];

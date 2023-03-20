@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'dart:math';
+
+import 'package:flutter_launcher_icons/constants.dart' as constants;
+import 'package:flutter_launcher_icons/custom_exceptions.dart';
 import 'package:flutter_launcher_icons/utils.dart';
 import 'package:flutter_launcher_icons/xml_templates.dart' as xml_template;
-import 'package:image/image.dart';
-import 'package:flutter_launcher_icons/custom_exceptions.dart';
-import 'package:flutter_launcher_icons/constants.dart' as constants;
+import 'package:image/image.dart' hide decodeImageFile;
 
 class AndroidIconTemplate {
   AndroidIconTemplate({this.size, this.directoryName});
@@ -79,9 +80,8 @@ Image rescaleImage(Image image, double scaleFactor, {int fillColor = 0}) {
         'Foreground image is not square!  Scaled canvas will be made square '
         'to meet Adaptive Icon Specifications');
   }
-  final Image scaledImage = Image(scaledDimension, scaledDimension);
-  scaledImage.fill(fillColor);
-  copyInto(
+  final Image scaledImage = Image(width: scaledDimension, height: scaledDimension, backgroundColor: ColorUint32(fillColor), numChannels: 4);
+  compositeImage(
     scaledImage,
     image,
     dstX: ((scaledDimension - image.width) / 2).floor(),
