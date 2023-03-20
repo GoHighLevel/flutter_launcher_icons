@@ -48,14 +48,18 @@ Future<void> createIcons(Map<String, dynamic> config, String flavor) async {
   }
 
   String backColor = config['adaptive_icon_background'] ?? '#FFFFFF';
-  final Image image = Image(
+  CustomColor color = CustomColor(_getColorFromHex(backColor));
+  Image image = Image(
     width: imageFile.width,
     height: imageFile.height,
-    numChannels: 4,
-    backgroundColor: ColorUint32(_getColorFromHex(backColor)),
+    numChannels: 3,
   );
 
-  compositeImage(image, imageFile, dstX: 0, dstY: 0, linearBlend: true);
+  fill(image, color: ColorRgb8(color.red, color.green, color.blue));
+
+  compositeImage(image, imageFile, dstX: 0, dstY: 0);
+
+  image = image.convert(numChannels: 3);
 
   String iconName;
   final dynamic iosConfig = config['ios'];
@@ -335,4 +339,18 @@ List<Map<String, String>> createImageList(String fileNamePrefix) {
         .toJson()
   ];
   return imageList;
+}
+
+class CustomColor {
+  const CustomColor(this.color);
+
+  final int color;
+
+  int get alpha => (0xff000000 & color) >> 24;
+
+  int get red => (0x00ff0000 & color) >> 16;
+
+  int get green => (0x0000ff00 & color) >> 8;
+
+  int get blue => (0x000000ff & color) >> 0;
 }
