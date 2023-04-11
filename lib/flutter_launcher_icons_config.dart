@@ -50,6 +50,14 @@ class FlutterLauncherIconsConfig {
   @JsonKey(name: 'remove_alpha_ios')
   final bool removeAlphaIOS;
 
+  /// Adaptive icon rescale factor
+  @JsonKey(name: 'adaptive_icon_foreground_scale_factor')
+  final double? adaptiveIconRescaleFactor;
+
+  /// Adaptive icon scaling fill color
+  @JsonKey(name: 'adaptive_icon_foreground_scale_fill_color')
+  final String? adaptiveIconScaleFillColor;
+
   /// Web platform config
   @JsonKey(name: 'web')
   final WebConfig? webConfig;
@@ -76,6 +84,8 @@ class FlutterLauncherIconsConfig {
     this.webConfig,
     this.windowsConfig,
     this.macOSConfig,
+    this.adaptiveIconRescaleFactor,
+    this.adaptiveIconScaleFillColor,
   });
 
   /// Creates [FlutterLauncherIconsConfig] icons from [json]

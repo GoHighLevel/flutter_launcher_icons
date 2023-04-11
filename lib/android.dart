@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter_launcher_icons/constants.dart';
 import 'package:flutter_launcher_icons/constants.dart' as constants;
@@ -88,6 +89,30 @@ bool isAndroidIconNameCorrectFormat(String iconName) {
   return true;
 }
 
+/// Rescales image by creating a different sized canvas and copying image centered onto the new canvas
+Image rescaleImage(Image image, double scaleFactor, {int fillColor = 0}) {
+  utils.printStatus('Rescaling icon by $scaleFactor');
+  final int scaledDimension =
+      (max(image.width, image.height) * 1 / scaleFactor).floor();
+  if (image.width != image.height) {
+    utils.printStatus(
+        'Foreground image is not square!  Scaled canvas will be made square '
+        'to meet Adaptive Icon Specifications');
+  }
+  final Image scaledImage = Image(
+      width: scaledDimension,
+      height: scaledDimension,
+      backgroundColor: ColorUint32(fillColor),
+      numChannels: 4);
+  compositeImage(
+    scaledImage,
+    image,
+    dstX: ((scaledDimension - image.width) / 2).floor(),
+    dstY: ((scaledDimension - image.height) / 2).floor(),
+  );
+  return scaledImage;
+}
+
 void createAdaptiveIcons(
   FlutterLauncherIconsConfig flutterLauncherIconsConfig,
   String? flavor,
@@ -106,15 +131,42 @@ void createAdaptiveIcons(
   if (foregroundImage == null) {
     return;
   }
+  final double? foregroundScaleFactor =
+      flutterLauncherIconsConfig.adaptiveIconRescaleFactor;
+  final String? foregroundScaleFillColor =
+      flutterLauncherIconsConfig.adaptiveIconScaleFillColor;
 
-  // Create adaptive icon foreground images
-  for (AndroidIconTemplate androidIcon in adaptiveForegroundIcons) {
-    overwriteExistingIcons(
-      androidIcon,
+  final bool rescale =
+      foregroundScaleFactor != null && foregroundScaleFactor > 0;
+
+  // Scales the foreground image prior to converting to icon.
+  // This is intended for scaling down to match adaptive icon spec
+  if (rescale) {
+    Image rescaledImage;
+    int _getColorFromHex(String hexColor) {
+      //Converts hex string to int
+      hexColor = hexColor.toUpperCase().replaceAll('#', '');
+      return int.parse(hexColor, radix: 16);
+    }
+
+    rescaledImage = rescaleImage(
       foregroundImage,
-      constants.androidAdaptiveForegroundFileName,
-      flavor,
+      foregroundScaleFactor,
+      fillColor: foregroundScaleFillColor != null &&
+              foregroundScaleFillColor.isNotEmpty
+          ? _getColorFromHex(foregroundScaleFillColor)
+          : 0,
     );
+
+    // Create adaptive icon foreground images
+    for (AndroidIconTemplate androidIcon in adaptiveForegroundIcons) {
+      overwriteExistingIcons(
+        androidIcon,
+        rescale ? rescaledImage : foregroundImage,
+        constants.androidAdaptiveForegroundFileName,
+        flavor,
+      );
+    }
   }
 
   // Create adaptive icon background
