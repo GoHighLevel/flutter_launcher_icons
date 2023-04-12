@@ -1,15 +1,13 @@
 name: flutter_launcher_icons
 description: A package which simplifies the task of updating your Flutter app's launcher icon.
-version: 0.13.0
-maintainer: Mark O'Sullivan (@MarkOSullivan94)
-homepage: https://github.com/fluttercommunity/flutter_launcher_icons
-repository: https://github.com/fluttercommunity/flutter_launcher_icons/
-issue_tracker: https://github.com/fluttercommunity/flutter_launcher_icons/issues
+version: 1.0.0
+maintainer: Sahdeep Singh
+homepage: https://github.com/GoHighLevel/flutter_launcher_icons
 
 dependencies:
   args: ^2.3.2
   checked_yaml: ^2.0.2
-  cli_util: ^0.4.0
+  cli_util: ^0.3.5
   image: ^4.0.15
   json_annotation: ^4.8.0
   path: ^1.8.2
