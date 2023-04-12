@@ -60,8 +60,24 @@ void createIcons(FlutterLauncherIconsConfig config, String? flavor) {
     return;
   }
   if (config.removeAlphaIOS && image.hasAlpha) {
-    image = image.convert(numChannels: 3);
+    int _getColorFromHex(String hexColor) {
+      //Converts hex string to int
+      hexColor = hexColor.toUpperCase().replaceAll('#', '');
+      return int.parse(hexColor, radix: 16);
+    }
+    final String backColor = config.adaptiveIconBackground ?? '#FFFFFF';
+    final color = CustomColor(_getColorFromHex(backColor));
+    Image scaledImage = Image(
+      width: image.width,
+      height: image.height,
+      numChannels: 3,
+    );
+    fill(scaledImage, color: ColorRgb8(color.red, color.green, color.blue));
+    compositeImage(scaledImage, image, dstX: 0, dstY: 0);
+    scaledImage = scaledImage.convert(numChannels: 3);
+    image = scaledImage;
   }
+
   if (image.hasAlpha) {
     print(
       '\nWARNING: Icons with alpha channel are not allowed in the Apple App Store.\nSet "remove_alpha_ios: true" to remove it.\n',
@@ -387,4 +403,18 @@ List<Map<String, String>> createImageList(String fileNamePrefix) {
     ).toJson()
   ];
   return imageList;
+}
+
+class CustomColor {
+  const CustomColor(this.color);
+
+  final int color;
+
+  int get alpha => (0xff000000 & color) >> 24;
+
+  int get red => (0x00ff0000 & color) >> 16;
+
+  int get green => (0x0000ff00 & color) >> 8;
+
+  int get blue => (0x000000ff & color) >> 0;
 }

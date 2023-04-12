@@ -32,6 +32,11 @@ FlutterLauncherIconsConfig _$FlutterLauncherIconsConfigFromJson(Map json) =>
               (v) => v == null ? null : WindowsConfig.fromJson(v as Map)),
           macOSConfig: $checkedConvert('macos',
               (v) => v == null ? null : MacOSConfig.fromJson(v as Map)),
+          adaptiveIconRescaleFactor: $checkedConvert(
+              'adaptive_icon_foreground_scale_factor',
+              (v) => (v as num?)?.toDouble()),
+          adaptiveIconScaleFillColor: $checkedConvert(
+              'adaptive_icon_foreground_scale_fill_color', (v) => v as String?),
         );
         return val;
       },
@@ -45,7 +50,10 @@ FlutterLauncherIconsConfig _$FlutterLauncherIconsConfigFromJson(Map json) =>
         'removeAlphaIOS': 'remove_alpha_ios',
         'webConfig': 'web',
         'windowsConfig': 'windows',
-        'macOSConfig': 'macos'
+        'macOSConfig': 'macos',
+        'adaptiveIconRescaleFactor': 'adaptive_icon_foreground_scale_factor',
+        'adaptiveIconScaleFillColor':
+            'adaptive_icon_foreground_scale_fill_color'
       },
     );
 
@@ -61,6 +69,10 @@ Map<String, dynamic> _$FlutterLauncherIconsConfigToJson(
       'adaptive_icon_background': instance.adaptiveIconBackground,
       'min_sdk_android': instance.minSdkAndroid,
       'remove_alpha_ios': instance.removeAlphaIOS,
+      'adaptive_icon_foreground_scale_factor':
+          instance.adaptiveIconRescaleFactor,
+      'adaptive_icon_foreground_scale_fill_color':
+          instance.adaptiveIconScaleFillColor,
       'web': instance.webConfig,
       'windows': instance.windowsConfig,
       'macos': instance.macOSConfig,
