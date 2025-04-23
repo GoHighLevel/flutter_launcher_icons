@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.1 (23rd April 2025) : Author: Milind Mevada
+- Upgraded cli_util dependency
+
 ## 0.13.0 (7th April 2023)
 
 - Fix remove alpha for iOS [#464](https://github.com/fluttercommunity/flutter_launcher_icons/pull/464)
