@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0 (3rd November 2026) : GoHighLevel fork
+
+- Synced with upstream v0.14.4
+- Kept `adaptive_icon_foreground_scale_factor` / `adaptive_icon_foreground_scale_fill_color`; when the scale factor is set, `adaptive_icon_foreground_inset` is forced to 0 so the icon is not shrunk twice
+- Kept the iOS `remove_alpha_ios` fill: `background_color_ios` if set, else a hex `adaptive_icon_background`, else white; composited onto a solid background instead of upstream's per-pixel blend
+- `cli_util` floor raised to 0.4.2
+
+## 1.0.1 (23rd April 2025) : Author: Milind Mevada
+
+- Upgraded cli_util dependency
+
 ## 0.14.4 (10th June 2025)
 
 - Removed rules which no longer exist from analysis_options [#598](https://github.com/fluttercommunity/flutter_launcher_icons/issues/598)

@@ -26,6 +26,11 @@ Config _$ConfigFromJson(Map json) => $checkedCreate(
           adaptiveIconForegroundInset: $checkedConvert(
               'adaptive_icon_foreground_inset',
               (v) => (v as num?)?.toInt() ?? 16),
+          adaptiveIconRescaleFactor: $checkedConvert(
+              'adaptive_icon_foreground_scale_factor',
+              (v) => (v as num?)?.toDouble()),
+          adaptiveIconScaleFillColor: $checkedConvert(
+              'adaptive_icon_foreground_scale_fill_color', (v) => v as String?),
           adaptiveIconBackground:
               $checkedConvert('adaptive_icon_background', (v) => v as String?),
           adaptiveIconMonochrome:
@@ -39,8 +44,8 @@ Config _$ConfigFromJson(Map json) => $checkedCreate(
               $checkedConvert('remove_alpha_ios', (v) => v as bool? ?? false),
           desaturateTintedToGrayscaleIOS: $checkedConvert(
               'desaturate_tinted_to_grayscale_ios', (v) => v as bool? ?? false),
-          backgroundColorIOS: $checkedConvert(
-              'background_color_ios', (v) => v as String? ?? '#ffffff'),
+          backgroundColorIOS:
+              $checkedConvert('background_color_ios', (v) => v as String?),
           webConfig: $checkedConvert(
               'web', (v) => v == null ? null : WebConfig.fromJson(v as Map)),
           windowsConfig: $checkedConvert('windows',
@@ -58,6 +63,9 @@ Config _$ConfigFromJson(Map json) => $checkedCreate(
         'imagePathIOSTintedGrayscale': 'image_path_ios_tinted_grayscale',
         'adaptiveIconForeground': 'adaptive_icon_foreground',
         'adaptiveIconForegroundInset': 'adaptive_icon_foreground_inset',
+        'adaptiveIconRescaleFactor': 'adaptive_icon_foreground_scale_factor',
+        'adaptiveIconScaleFillColor':
+            'adaptive_icon_foreground_scale_fill_color',
         'adaptiveIconBackground': 'adaptive_icon_background',
         'adaptiveIconMonochrome': 'adaptive_icon_monochrome',
         'minSdkAndroid': 'min_sdk_android',
@@ -80,6 +88,10 @@ Map<String, dynamic> _$ConfigToJson(Config instance) => <String, dynamic>{
       'image_path_ios_tinted_grayscale': instance.imagePathIOSTintedGrayscale,
       'adaptive_icon_foreground': instance.adaptiveIconForeground,
       'adaptive_icon_foreground_inset': instance.adaptiveIconForegroundInset,
+      'adaptive_icon_foreground_scale_factor':
+          instance.adaptiveIconRescaleFactor,
+      'adaptive_icon_foreground_scale_fill_color':
+          instance.adaptiveIconScaleFillColor,
       'adaptive_icon_background': instance.adaptiveIconBackground,
       'adaptive_icon_monochrome': instance.adaptiveIconMonochrome,
       'min_sdk_android': instance.minSdkAndroid,

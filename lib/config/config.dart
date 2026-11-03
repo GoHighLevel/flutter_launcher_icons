@@ -29,12 +29,14 @@ class Config {
     this.imagePathIOSTintedGrayscale,
     this.adaptiveIconForeground,
     this.adaptiveIconForegroundInset = 16,
+    this.adaptiveIconRescaleFactor,
+    this.adaptiveIconScaleFillColor,
     this.adaptiveIconBackground,
     this.adaptiveIconMonochrome,
     this.minSdkAndroid = constants.androidDefaultAndroidMinSDK,
     this.removeAlphaIOS = false,
     this.desaturateTintedToGrayscaleIOS = false,
-    this.backgroundColorIOS = '#ffffff',
+    this.backgroundColorIOS,
     this.webConfig,
     this.windowsConfig,
     this.macOSConfig,
@@ -137,6 +139,15 @@ class Config {
   @JsonKey(name: 'adaptive_icon_foreground_inset')
   final int adaptiveIconForegroundInset;
 
+  /// Adaptive icon rescale factor (GHL fork). When set, the foreground image
+  /// is placed centred on a larger square canvas instead of using an inset.
+  @JsonKey(name: 'adaptive_icon_foreground_scale_factor')
+  final double? adaptiveIconRescaleFactor;
+
+  /// Adaptive icon scaling fill color (GHL fork)
+  @JsonKey(name: 'adaptive_icon_foreground_scale_fill_color')
+  final String? adaptiveIconScaleFillColor;
+
   /// android adaptive_icon_background image
   @JsonKey(name: 'adaptive_icon_background')
   final String? adaptiveIconBackground;
@@ -157,9 +168,10 @@ class Config {
   @JsonKey(name: 'desaturate_tinted_to_grayscale_ios')
   final bool desaturateTintedToGrayscaleIOS;
 
-  /// IOS background_color_ios
+  /// IOS background_color_ios. When unset, [iosBackgroundColor] falls back to
+  /// `adaptive_icon_background` if it is a hex color (GHL fork).
   @JsonKey(name: 'background_color_ios')
-  final String backgroundColorIOS;
+  final String? backgroundColorIOS;
 
   /// Web platform config
   @JsonKey(name: 'web')
@@ -225,6 +237,28 @@ class Config {
   // https://github.com/fluttercommunity/flutter_launcher_icons/issues/394
   /// get the image path for IOS
   String? getImagePathIOS() => imagePathIOS ?? imagePath;
+
+  /// Whether the adaptive foreground should be rescaled (GHL fork)
+  bool get hasAdaptiveIconRescale =>
+      adaptiveIconRescaleFactor != null && adaptiveIconRescaleFactor! > 0;
+
+  /// Inset written to the adaptive icon xml. The rescale factor already
+  /// shrinks the foreground, so no inset is applied on top of it.
+  int get effectiveAdaptiveIconForegroundInset =>
+      hasAdaptiveIconRescale ? 0 : adaptiveIconForegroundInset;
+
+  /// Color used to fill transparent pixels when `remove_alpha_ios` is set:
+  /// `background_color_ios`, else a hex `adaptive_icon_background`, else white.
+  String get iosBackgroundColor {
+    if (backgroundColorIOS != null) {
+      return backgroundColorIOS!;
+    }
+    final adaptiveBackground = adaptiveIconBackground;
+    if (adaptiveBackground != null && adaptiveBackground.startsWith('#')) {
+      return adaptiveBackground;
+    }
+    return '#ffffff';
+  }
 
   /// Converts config to [Map]
   Map<String, dynamic> toJson() => _$ConfigToJson(this);

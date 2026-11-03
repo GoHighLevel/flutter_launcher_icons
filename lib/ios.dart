@@ -116,13 +116,17 @@ Future<void> createIcons(Config config, String? flavor) async {
   }
 
   if (config.removeAlphaIOS && image.hasAlpha) {
+    // Composite onto a solid background (GHL fork): upstream's per-pixel
+    // _alphaBlend mixes the wrong background channels for partial alpha.
     final backgroundColor = _getBackgroundColor(config);
-    final pixel = image.getPixel(0, 0);
-    do {
-      pixel.set(_alphaBlend(pixel, backgroundColor));
-    } while (pixel.moveNext());
-
-    image = image.convert(numChannels: 3);
+    final Image opaqueImage = Image(
+      width: image.width,
+      height: image.height,
+      numChannels: 3,
+    );
+    fill(opaqueImage, color: backgroundColor);
+    compositeImage(opaqueImage, image, dstX: 0, dstY: 0);
+    image = opaqueImage.convert(numChannels: 3);
   }
   if (image.hasAlpha) {
     print(
@@ -707,9 +711,10 @@ List<Map<String, dynamic>> createImageList(
 }
 
 ColorUint8 _getBackgroundColor(Config config) {
-  final backgroundColorHex = config.backgroundColorIOS.startsWith('#')
-      ? config.backgroundColorIOS.substring(1)
-      : config.backgroundColorIOS;
+  final backgroundColor = config.iosBackgroundColor;
+  final backgroundColorHex = backgroundColor.startsWith('#')
+      ? backgroundColor.substring(1)
+      : backgroundColor;
   if (backgroundColorHex.length != 6) {
     throw Exception('background_color_ios hex should be 6 characters long');
   }
@@ -721,21 +726,4 @@ ColorUint8 _getBackgroundColor(Config config) {
     (backgroundByte >> 0) & 0xff,
     0xff,
   );
-}
-
-Color _alphaBlend(Color fg, ColorUint8 bg) {
-  if (fg.format != Format.uint8) {
-    fg = fg.convert(format: Format.uint8);
-  }
-  if (fg.a == 0) {
-    return bg;
-  } else {
-    final invAlpha = 0xff - fg.a;
-    return ColorUint8.rgba(
-      (fg.a * fg.r + invAlpha * bg.g) ~/ 0xff,
-      (fg.a * fg.g + invAlpha * bg.a) ~/ 0xff,
-      (fg.a * fg.b + invAlpha * bg.b) ~/ 0xff,
-      0xff,
-    );
-  }
 }

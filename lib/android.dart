@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter_launcher_icons/config/config.dart';
 import 'package:flutter_launcher_icons/constants.dart' as constants;
@@ -92,6 +93,36 @@ bool isAndroidIconNameCorrectFormat(String iconName) {
   return true;
 }
 
+/// Rescales image by creating a different sized canvas and copying image centered onto the new canvas
+Image rescaleImage(Image image, double scaleFactor, {int fillColor = 0}) {
+  utils.printStatus('Rescaling icon by $scaleFactor');
+  final int scaledDimension =
+      (max(image.width, image.height) * 1 / scaleFactor).floor();
+  if (image.width != image.height) {
+    utils.printStatus(
+      'Foreground image is not square!  Scaled canvas will be made square '
+      'to meet Adaptive Icon Specifications',
+    );
+  }
+  final Image scaledImage = Image(
+    width: scaledDimension,
+    height: scaledDimension,
+    backgroundColor: ColorUint32(fillColor),
+    numChannels: 4,
+  );
+  compositeImage(
+    scaledImage,
+    image,
+    dstX: ((scaledDimension - image.width) / 2).floor(),
+    dstY: ((scaledDimension - image.height) / 2).floor(),
+  );
+  return scaledImage;
+}
+
+int _getColorFromHex(String hexColor) {
+  return int.parse(hexColor.toUpperCase().replaceAll('#', ''), radix: 16);
+}
+
 Future<void> createAdaptiveIcons(
   Config config,
   String? flavor,
@@ -104,9 +135,22 @@ Future<void> createAdaptiveIcons(
   if (backgroundConfig == null || foregroundImagePath == null) {
     throw const InvalidConfigException(errorMissingImagePath);
   }
-  final Image? foregroundImage = await utils.decodeImageFile(foregroundImagePath);
+  Image? foregroundImage = await utils.decodeImageFile(foregroundImagePath);
   if (foregroundImage == null) {
     return;
+  }
+
+  // Scales the foreground image prior to converting to icon.
+  // This is intended for scaling down to match adaptive icon spec
+  if (config.hasAdaptiveIconRescale) {
+    final String? fillColor = config.adaptiveIconScaleFillColor;
+    foregroundImage = rescaleImage(
+      foregroundImage,
+      config.adaptiveIconRescaleFactor!,
+      fillColor: fillColor != null && fillColor.isNotEmpty
+          ? _getColorFromHex(fillColor)
+          : 0,
+    );
   }
 
   final concurrentImageUpdates = <Future<void>>[];
@@ -198,7 +242,7 @@ Future<void> createMipmapXmlFile(
   <foreground>
       <inset
           android:drawable="@drawable/ic_launcher_foreground"
-          android:inset="${config.adaptiveIconForegroundInset}%" />
+          android:inset="${config.effectiveAdaptiveIconForegroundInset}%" />
   </foreground>
 ''';
   }
@@ -208,7 +252,7 @@ Future<void> createMipmapXmlFile(
   <monochrome>
       <inset
           android:drawable="@drawable/ic_launcher_monochrome"
-          android:inset="${config.adaptiveIconForegroundInset}%" />
+          android:inset="${config.effectiveAdaptiveIconForegroundInset}%" />
   </monochrome>
 ''';
   }
