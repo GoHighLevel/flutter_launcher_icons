@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_launcher_icons/abs/icon_generator.dart';
-import 'package:flutter_launcher_icons/flutter_launcher_icons_config.dart';
+import 'package:flutter_launcher_icons/config/config.dart';
 import 'package:flutter_launcher_icons/logger.dart';
 import 'package:flutter_launcher_icons/web/web_icon_generator.dart';
 import 'package:path/path.dart' as path;
@@ -14,7 +14,7 @@ void main() {
   group('WebIconGenerator', () {
     late IconGeneratorContext context;
     late IconGenerator generator;
-    late FlutterLauncherIconsConfig config;
+    late Config config;
     late String prefixPath;
     final assetPath = path.join(Directory.current.path, 'test', 'assets');
 
@@ -32,7 +32,7 @@ void main() {
         d.file('app_icon.png', imageFile.readAsBytesSync()),
       ]).create();
       prefixPath = path.join(d.sandbox, 'fli_test');
-      config = FlutterLauncherIconsConfig.loadConfigFromPath(
+      config = Config.loadConfigFromPath(
         'flutter_launcher_icons.yaml',
         prefixPath,
       )!;
@@ -47,7 +47,7 @@ void main() {
     // end to end test
     test('should generate valid icons', () async {
       expect(generator.validateRequirements(), isTrue);
-      generator.createIcons();
+      await generator.createIcons();
       await expectLater(
         d.dir('fli_test', [
           d.dir('web', [
@@ -65,7 +65,7 @@ void main() {
             d.file('manifest.json', anything),
           ]),
           d.file('flutter_launcher_icons.yaml', anything),
-          d.file('pubspec.yaml', templates.pubspecTemplate)
+          d.file('pubspec.yaml', templates.pubspecTemplate),
         ]).validate(),
         completes,
       );

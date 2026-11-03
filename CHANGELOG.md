@@ -1,7 +1,43 @@
 # Changelog
 
-## 1.0.1 (23rd April 2025) : Author: Milind Mevada
-- Upgraded cli_util dependency
+## 0.14.4 (10th June 2025)
+
+- Removed rules which no longer exist from analysis_options [#598](https://github.com/fluttercommunity/flutter_launcher_icons/issues/598)
+- Fix template generated within thegenerate command [#642](https://github.com/fluttercommunity/flutter_launcher_icons/issues/642)
+- Standardize on async I/O and waiting for work to complete [#646](https://github.com/fluttercommunity/flutter_launcher_icons/issues/646)
+
+## 0.14.3 (17th January 2025)
+
+- Android: Avoids creating mipmap file used by adaptive and monochrome icons if no config exist for both [#601](https://github.com/fluttercommunity/flutter_launcher_icons/pull/601)
+
+## 0.14.2 (5th December 2024)
+
+- iOS: Fixed issue where dark and tinted icons were placed into the wrong directory [#597](https://github.com/fluttercommunity/flutter_launcher_icons/pull/597)
+
+## 0.14.1 (24th September 2024)
+
+- Fixed README
+
+## 0.14.0 (21st September 2024)
+
+- Android: Support for monochrome icons [#497](https://github.com/fluttercommunity/flutter_launcher_icons/pull/497)
+
+**Before**
+
+<img src="https://github.com/user-attachments/assets/ce16287d-1394-4404-b056-8308f0a69f07" width=40%>
+
+**Now**
+
+<img src="https://github.com/user-attachments/assets/a420fefd-28b0-4eb9-8fd0-2e03068d3d83" width=40%>
+
+- Android: Ability to set inset for adaptive icon foreground and monochrome icon [#563](https://github.com/fluttercommunity/flutter_launcher_icons/pull/563)
+- iOS: Dark and Tinted icons for iOS 18+ [#569](https://github.com/fluttercommunity/flutter_launcher_icons/pull/569)
+
+## 0.13.1 (15th April 2023)
+
+- Can now use `flutter_launcher_icons` instead of `flutter_icons` [#478](https://github.com/fluttercommunity/flutter_launcher_icons/pull/478)
+- Can use command `flutter pub run flutter_launcher_icons:generate` to automatically generate config file [#475](https://github.com/fluttercommunity/flutter_launcher_icons/pull/475)
+
 
 ## 0.13.0 (7th April 2023)
 

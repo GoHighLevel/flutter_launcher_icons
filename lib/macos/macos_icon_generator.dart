@@ -28,7 +28,7 @@ class MacOSIconGenerator extends IconGenerator {
   MacOSIconGenerator(IconGeneratorContext context) : super(context, 'MacOS');
 
   @override
-  void createIcons() {
+  Future<void> createIcons() async {
     final imgFilePath = path.join(
       context.prefixPath,
       context.config.macOSConfig!.imagePath ?? context.config.imagePath,
@@ -36,14 +36,14 @@ class MacOSIconGenerator extends IconGenerator {
 
     context.logger
         .verbose('Decoding and loading image file at $imgFilePath...');
-    final imgFile = utils.decodeImageFile(imgFilePath);
+    final imgFile = await utils.decodeImageFile(imgFilePath);
     if (imgFile == null) {
       context.logger.error('Image File not found at give path $imgFilePath...');
       throw FileNotFoundException(imgFilePath);
     }
 
     context.logger.verbose('Generating icons $imgFilePath...');
-    _generateIcons(imgFile);
+    await _generateIcons(imgFile);
     context.logger.verbose('Updating contents.json');
     _updateContentsFile();
   }
@@ -65,11 +65,11 @@ class MacOSIconGenerator extends IconGenerator {
     if (macOSConfig.imagePath == null && context.config.imagePath == null) {
       context.logger
         ..verbose({
-          'flutter_icons.macos.image_path': macOSConfig.imagePath,
-          'flutter_icons.image_path': context.config.imagePath,
+          'flutter_launcher_icons.macos.image_path': macOSConfig.imagePath,
+          'flutter_launcher_icons.image_path': context.config.imagePath,
         })
         ..error(
-          'Missing image_path. Either provide "flutter_icons.macos.image_path" or "flutter_icons.image_path"',
+          'Missing image_path. Either provide "flutter_launcher_icons.macos.image_path" or "flutter_launcher_icons.image_path"',
         );
 
       return false;
@@ -93,17 +93,17 @@ class MacOSIconGenerator extends IconGenerator {
     return true;
   }
 
-  void _generateIcons(Image image) {
-    final iconsDir = utils.createDirIfNotExist(
+  Future<void> _generateIcons(Image image) async {
+    final iconsDir = await utils.createDirIfNotExist(
       path.join(context.prefixPath, constants.macOSIconsDirPath),
     );
 
     for (final template in _iconSizeTemplates) {
       final resizedImg = utils.createResizedImage(template.scaledSize, image);
-      final iconFile = utils.createFileIfNotExist(
+      final iconFile = await utils.createFileIfNotExist(
         path.join(context.prefixPath, iconsDir.path, template.iconFile),
       );
-      iconFile.writeAsBytesSync(encodePng(resizedImg));
+      await iconFile.writeAsBytes(encodePng(resizedImg));
     }
   }
 

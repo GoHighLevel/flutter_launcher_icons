@@ -1,6 +1,9 @@
 import 'dart:io';
 
-import 'package:flutter_launcher_icons/flutter_launcher_icons_config.dart';
+import 'package:flutter_launcher_icons/config/config.dart';
+import 'package:flutter_launcher_icons/config/macos_config.dart';
+import 'package:flutter_launcher_icons/config/web_config.dart';
+import 'package:flutter_launcher_icons/config/windows_config.dart';
 import 'package:flutter_launcher_icons/logger.dart';
 
 /// A base class to generate icons
@@ -23,7 +26,7 @@ abstract class IconGenerator {
   IconGenerator(this.context, this.platformName);
 
   /// Creates icons for this platform.
-  void createIcons();
+  Future<void> createIcons();
 
   /// Should return `true` if this platform
   /// has all the requirements to create icons.
@@ -34,7 +37,7 @@ abstract class IconGenerator {
 /// Provides easy access to user arguments and configuration
 class IconGeneratorContext {
   /// Contains configuration from configuration file
-  final FlutterLauncherIconsConfig config;
+  final Config config;
 
   /// A logger
   final FLILogger logger;
@@ -64,13 +67,13 @@ class IconGeneratorContext {
 }
 
 /// Generates Icon for given platforms
-void generateIconsFor({
-  required FlutterLauncherIconsConfig config,
+Future<void> generateIconsFor({
+  required Config config,
   required String? flavor,
   required String prefixPath,
   required FLILogger logger,
   required List<IconGenerator> Function(IconGeneratorContext context) platforms,
-}) {
+}) async {
   try {
     final platformList = platforms(
       IconGeneratorContext(
@@ -100,7 +103,7 @@ void generateIconsFor({
           progress.cancel();
           continue;
         }
-        platform.createIcons();
+        await platform.createIcons();
         progress.finish(message: 'done', showTiming: true);
       } catch (e, st) {
         progress.cancel();

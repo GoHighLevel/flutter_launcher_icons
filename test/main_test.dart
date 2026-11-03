@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:flutter_launcher_icons/android.dart' as android;
-import 'package:flutter_launcher_icons/flutter_launcher_icons_config.dart';
+import 'package:flutter_launcher_icons/config/config.dart';
 import 'package:flutter_launcher_icons/ios.dart' as ios;
 import 'package:flutter_launcher_icons/main.dart' show defaultConfigFile;
 import 'package:flutter_launcher_icons/main.dart' as main_dart;
@@ -12,7 +12,11 @@ import 'package:test/test.dart';
 // Unit tests for main.dart
 void main() {
   test('iOS icon list is correct size', () {
-    expect(ios.iosIcons.length, 21);
+    expect(ios.iosIcons.length, 16);
+  });
+
+  test('iOS legacy icon list is correct size', () {
+    expect(ios.legacyIosIcons.length, 21);
   });
 
   test('Android icon list is correct size', () {
@@ -20,9 +24,27 @@ void main() {
   });
 
   test(
-      'iOS image list used to generate Contents.json for icon directory is correct size',
+      'iOS image list used to generate legacy Contents.json for icon directory is correct size (no dark or tinted icons)',
       () {
-    expect(ios.createImageList('blah').length, 25);
+    expect(ios.createLegacyImageList('blah').length, 25);
+  });
+
+  test(
+      'iOS image list used to generate Contents.json for icon directory is correct size (with dark icon)',
+      () {
+    expect(ios.createImageList('blah', 'dark-blah', null).length, 16 * 2 + 1); // 16 normal, 16 dark icons + 1 marketing icon
+  });
+
+  test(
+      'iOS image list used to generate Contents.json for icon directory is correct size (with tinted icon)',
+      () {
+    expect(ios.createImageList('blah', null, 'tinted-blah').length, 16 * 2 + 1); // 16 normal, 16 tinted icons + 1 marketing icon
+  });
+
+  test(
+      'iOS image list used to generate Contents.json for icon directory is correct size (with dark and tinted icon)',
+      () {
+    expect(ios.createImageList('blah', 'dark-blah', 'tinted-blah').length, 16 * 3 + 1); // 16 normal, 16 dark, 16 tinted icons + 1 marketing icon
   });
 
   group('config file from args', () {
@@ -54,29 +76,28 @@ void main() {
     tearDown(() {
       Directory.current = currentDirectory;
     });
+
     test('default', () async {
       await setCurrentDirectory('default');
       await File('flutter_launcher_icons.yaml').writeAsString('''
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: false
 ''');
       final ArgResults argResults = parser.parse(<String>[]);
-      final FlutterLauncherIconsConfig? config =
-          main_dart.loadConfigFileFromArgResults(argResults);
+      final Config? config = main_dart.loadConfigFileFromArgResults(argResults);
       expect(config, isNotNull);
       expect(config!.android, isTrue);
     });
     test('default_use_pubspec', () async {
       await setCurrentDirectory('pubspec_only');
       await File('pubspec.yaml').writeAsString('''
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: false
 ''');
       ArgResults argResults = parser.parse(<String>[]);
-      final FlutterLauncherIconsConfig? config =
-          main_dart.loadConfigFileFromArgResults(argResults);
+      final Config? config = main_dart.loadConfigFileFromArgResults(argResults);
       expect(config, isNotNull);
       expect(config!.ios, isFalse);
 
@@ -88,14 +109,13 @@ flutter_icons:
     test('custom', () async {
       await setCurrentDirectory('custom');
       await File('custom.yaml').writeAsString('''
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
 ''');
       // if no argument set, should fail
       ArgResults argResults = parser.parse(<String>['-f', 'custom.yaml']);
-      final FlutterLauncherIconsConfig? config =
-          main_dart.loadConfigFileFromArgResults(argResults);
+      final Config? config = main_dart.loadConfigFileFromArgResults(argResults);
       expect(config, isNotNull);
       expect(config!.ios, isTrue);
 
@@ -113,9 +133,9 @@ flutter_icons:
     final Map<String, dynamic> flutterIconsConfig = <String, dynamic>{
       'image_path': 'assets/images/icon-710x599.png',
       'android': true,
-      'ios': true
+      'ios': true,
     };
-    final config = FlutterLauncherIconsConfig.fromJson(flutterIconsConfig);
+    final config = Config.fromJson(flutterIconsConfig);
     expect(
       config.getImagePathAndroid(),
       equals('assets/images/icon-710x599.png'),
@@ -124,10 +144,9 @@ flutter_icons:
     final Map<String, dynamic> flutterIconsConfigAndroid = <String, dynamic>{
       'image_path_android': 'assets/images/icon-710x599.png',
       'android': true,
-      'ios': true
+      'ios': true,
     };
-    final configAndroid =
-        FlutterLauncherIconsConfig.fromJson(flutterIconsConfigAndroid);
+    final configAndroid = Config.fromJson(flutterIconsConfigAndroid);
     expect(
       configAndroid.getImagePathAndroid(),
       equals('assets/images/icon-710x599.png'),
@@ -137,10 +156,9 @@ flutter_icons:
       'image_path_android': 'assets/images/icon-android.png',
       'image_path_ios': 'assets/images/icon-ios.png',
       'android': true,
-      'ios': true
+      'ios': true,
     };
-    final configBoth =
-        FlutterLauncherIconsConfig.fromJson(flutterIconsConfigBoth);
+    final configBoth = Config.fromJson(flutterIconsConfigBoth);
     expect(
       configBoth.getImagePathAndroid(),
       equals('assets/images/icon-android.png'),
@@ -152,17 +170,17 @@ flutter_icons:
     final Map<String, dynamic> flutterIconsConfig = <String, dynamic>{
       'image_path': 'assets/images/icon-710x599.png',
       'android': true,
-      'ios': true
+      'ios': true,
     };
-    final config = FlutterLauncherIconsConfig.fromJson(flutterIconsConfig);
+    final config = Config.fromJson(flutterIconsConfig);
     expect(config.hasPlatformConfig, isTrue);
   });
 
   test('No platform specified in config', () {
     final Map<String, dynamic> flutterIconsConfig = <String, dynamic>{
-      'image_path': 'assets/images/icon-710x599.png'
+      'image_path': 'assets/images/icon-710x599.png',
     };
-    final config = FlutterLauncherIconsConfig.fromJson(flutterIconsConfig);
+    final config = Config.fromJson(flutterIconsConfig);
     expect(config.hasPlatformConfig, isFalse);
   });
 
@@ -170,18 +188,18 @@ flutter_icons:
     final Map<String, dynamic> flutterIconsConfig = <String, dynamic>{
       'image_path': 'assets/images/icon-710x599.png',
       'android': false,
-      'ios': true
+      'ios': true,
     };
-    final config = FlutterLauncherIconsConfig.fromJson(flutterIconsConfig);
+    final config = Config.fromJson(flutterIconsConfig);
     expect(config.isNeedingNewAndroidIcon, isFalse);
   });
 
   test('No new Android icon needed - no Android config', () {
     final Map<String, dynamic> flutterIconsConfig = <String, dynamic>{
       'image_path': 'assets/images/icon-710x599.png',
-      'ios': true
+      'ios': true,
     };
-    final config = FlutterLauncherIconsConfig.fromJson(flutterIconsConfig);
+    final config = Config.fromJson(flutterIconsConfig);
     expect(config.isNeedingNewAndroidIcon, isFalse);
   });
 
@@ -189,18 +207,18 @@ flutter_icons:
     final Map<String, dynamic> flutterIconsConfig = <String, dynamic>{
       'image_path': 'assets/images/icon-710x599.png',
       'android': true,
-      'ios': false
+      'ios': false,
     };
-    final config = FlutterLauncherIconsConfig.fromJson(flutterIconsConfig);
+    final config = Config.fromJson(flutterIconsConfig);
     expect(config.isNeedingNewIOSIcon, isFalse);
   });
 
   test('No new iOS icon needed - no iOS config', () {
     final Map<String, dynamic> flutterIconsConfig = <String, dynamic>{
       'image_path': 'assets/images/icon-710x599.png',
-      'android': true
+      'android': true,
     };
-    final config = FlutterLauncherIconsConfig.fromJson(flutterIconsConfig);
+    final config = Config.fromJson(flutterIconsConfig);
     expect(config.isNeedingNewIOSIcon, isFalse);
   });
 }
