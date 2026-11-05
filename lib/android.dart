@@ -119,6 +119,27 @@ Image rescaleImage(Image image, double scaleFactor, {int fillColor = 0}) {
   return scaledImage;
 }
 
+/// Applies `adaptive_icon_foreground_scale_factor` to an adaptive icon layer.
+/// The monochrome layer passes [useFillColor] false: it is an alpha mask, so
+/// its canvas stays transparent.
+Image rescaleAdaptiveImage(
+  Config config,
+  Image image, {
+  bool useFillColor = true,
+}) {
+  if (!config.hasAdaptiveIconRescale) {
+    return image;
+  }
+  final String? fillColor = config.adaptiveIconScaleFillColor;
+  return rescaleImage(
+    image,
+    config.adaptiveIconRescaleFactor!,
+    fillColor: useFillColor && fillColor != null && fillColor.isNotEmpty
+        ? _getColorFromHex(fillColor)
+        : 0,
+  );
+}
+
 int _getColorFromHex(String hexColor) {
   return int.parse(hexColor.toUpperCase().replaceAll('#', ''), radix: 16);
 }
@@ -142,16 +163,14 @@ Future<void> createAdaptiveIcons(
 
   // Scales the foreground image prior to converting to icon.
   // This is intended for scaling down to match adaptive icon spec
-  if (config.hasAdaptiveIconRescale) {
-    final String? fillColor = config.adaptiveIconScaleFillColor;
-    foregroundImage = rescaleImage(
-      foregroundImage,
-      config.adaptiveIconRescaleFactor!,
-      fillColor: fillColor != null && fillColor.isNotEmpty
-          ? _getColorFromHex(fillColor)
-          : 0,
+  if (config.hasAdaptiveIconRescale &&
+      config.adaptiveIconForegroundInset != defaultAdaptiveIconForegroundInset) {
+    utils.printStatus(
+      'Warning: adaptive_icon_foreground_inset is ignored because '
+      'adaptive_icon_foreground_scale_factor is set',
     );
   }
+  foregroundImage = rescaleAdaptiveImage(config, foregroundImage);
 
   final concurrentImageUpdates = <Future<void>>[];
   // Create adaptive icon foreground images
@@ -192,10 +211,12 @@ Future<void> createAdaptiveMonochromeIcons(
   if (monochromeImagePath == null) {
     throw const InvalidConfigException(errorMissingImagePath);
   }
-  final Image? monochromeImage = await utils.decodeImageFile(monochromeImagePath);
+  Image? monochromeImage = await utils.decodeImageFile(monochromeImagePath);
   if (monochromeImage == null) {
     return;
   }
+  // Matches the rescaled foreground, since both layers then get no inset
+  monochromeImage = rescaleAdaptiveImage(config, monochromeImage, useFillColor: false);
 
   final concurrentIconUpdates = <Future<void>>[];
   // Create adaptive icon monochrome images

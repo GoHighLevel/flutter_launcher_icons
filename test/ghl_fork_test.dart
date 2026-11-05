@@ -43,6 +43,41 @@ void main() {
       expect(scaled.getPixel(40, 40).r, 255);
       expect(scaled.getPixel(0, 0).a, 0);
     });
+
+    test('rescaleAdaptiveImage applies the scale factor', () {
+      final config = Config.fromJson({
+        'adaptive_icon_foreground_scale_factor': 0.5,
+      });
+      final image = Image(width: 10, height: 10, numChannels: 4);
+
+      final scaled = android.rescaleAdaptiveImage(config, image);
+
+      expect(scaled.width, 20);
+      expect(scaled.height, 20);
+    });
+
+    test('rescaleAdaptiveImage keeps the monochrome canvas transparent', () {
+      final config = Config.fromJson({
+        'adaptive_icon_foreground_scale_factor': 0.5,
+        'adaptive_icon_foreground_scale_fill_color': '#FF07223D',
+      });
+      final image = Image(width: 10, height: 10, numChannels: 4);
+
+      final scaled =
+          android.rescaleAdaptiveImage(config, image, useFillColor: false);
+
+      expect(scaled.width, 20);
+      expect(scaled.getPixel(0, 0).a, 0);
+    });
+
+    test('rescaleAdaptiveImage leaves the image as is without a factor', () {
+      final config = Config.fromJson({});
+      final image = Image(width: 10, height: 10, numChannels: 4);
+
+      final result = android.rescaleAdaptiveImage(config, image);
+
+      expect(result, same(image));
+    });
   });
 
   group('GHL fork: iOS remove alpha background', () {
@@ -57,6 +92,18 @@ void main() {
 
     test('falls back to a hex adaptive_icon_background', () {
       final config = Config.fromJson({'adaptive_icon_background': '#07223D'});
+
+      expect(config.iosBackgroundColor, '#07223D');
+    });
+
+    test('takes the RGB part of an 8-digit ARGB adaptive_icon_background', () {
+      final config = Config.fromJson({'adaptive_icon_background': '#FF07223D'});
+
+      expect(config.iosBackgroundColor, '#07223D');
+    });
+
+    test('accepts a hex adaptive_icon_background without #', () {
+      final config = Config.fromJson({'adaptive_icon_background': '07223D'});
 
       expect(config.iosBackgroundColor, '#07223D');
     });

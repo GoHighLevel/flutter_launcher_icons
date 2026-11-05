@@ -25,7 +25,8 @@ Config _$ConfigFromJson(Map json) => $checkedCreate(
               $checkedConvert('adaptive_icon_foreground', (v) => v as String?),
           adaptiveIconForegroundInset: $checkedConvert(
               'adaptive_icon_foreground_inset',
-              (v) => (v as num?)?.toInt() ?? 16),
+              (v) =>
+                  (v as num?)?.toInt() ?? defaultAdaptiveIconForegroundInset),
           adaptiveIconRescaleFactor: $checkedConvert(
               'adaptive_icon_foreground_scale_factor',
               (v) => (v as num?)?.toDouble()),

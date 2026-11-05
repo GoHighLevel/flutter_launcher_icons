@@ -12,6 +12,9 @@ import 'package:path/path.dart' as path;
 
 part 'config.g.dart';
 
+/// Default for `adaptive_icon_foreground_inset`
+const int defaultAdaptiveIconForegroundInset = 16;
+
 /// A model representing the flutter_launcher_icons configuration
 @JsonSerializable(
   anyMap: true,
@@ -28,7 +31,7 @@ class Config {
     this.imagePathIOSDarkTransparent,
     this.imagePathIOSTintedGrayscale,
     this.adaptiveIconForeground,
-    this.adaptiveIconForegroundInset = 16,
+    this.adaptiveIconForegroundInset = defaultAdaptiveIconForegroundInset,
     this.adaptiveIconRescaleFactor,
     this.adaptiveIconScaleFillColor,
     this.adaptiveIconBackground,
@@ -249,13 +252,16 @@ class Config {
 
   /// Color used to fill transparent pixels when `remove_alpha_ios` is set:
   /// `background_color_ios`, else a hex `adaptive_icon_background`, else white.
+  /// A hex `adaptive_icon_background` may be RGB or ARGB, with or without `#`.
   String get iosBackgroundColor {
     if (backgroundColorIOS != null) {
       return backgroundColorIOS!;
     }
-    final adaptiveBackground = adaptiveIconBackground;
-    if (adaptiveBackground != null && adaptiveBackground.startsWith('#')) {
-      return adaptiveBackground;
+    // RGB or ARGB hex, `#` optional, as 1.0.1 accepted; ARGB drops the alpha
+    final match = RegExp(r'^#?(?:[0-9a-fA-F]{2})?([0-9a-fA-F]{6})$')
+        .firstMatch(adaptiveIconBackground ?? '');
+    if (match != null) {
+      return '#${match.group(1)}';
     }
     return '#ffffff';
   }
